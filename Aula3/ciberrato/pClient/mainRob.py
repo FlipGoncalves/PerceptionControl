@@ -32,7 +32,7 @@ class MyRob(CRobLinkAngs):
 
             print("start---") 
 
-            Px = 5          # initial variance
+            Px = 10          # initial variance
             Fx = 0          # initial value
             Rt = 5          # measurement variance
             Qt = 0          # process variance
