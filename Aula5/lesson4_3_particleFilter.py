@@ -144,9 +144,12 @@ class robot:
 
     def move(self, motion): # Do not change the name of this function
 
+        noise_steer = random.gauss(0, self.steering_noise)
+        noise_dist = random.gauss(0, self.distance_noise)
+
         # ADD CODE HERE
-        angle = motion[0] + self.steering_noise
-        length = motion[1] + self.distance_noise
+        angle = motion[0] + noise_steer
+        length = motion[1] + noise_dist
 
         if angle != 0:
             radius = self.length / tan(angle)
@@ -181,7 +184,22 @@ class robot:
 
         # ENTER CODE HERE
         # HINT: You will probably need to use the function atan2()
+        for landmark in landmarks:
+            vector = [landmark[1] - self.x, landmark[0] - self.y]
 
+            angle = atan2(vector[1], vector[0])
+            
+            bearing = angle - self.orientation
+
+            while bearing > 2*pi:
+                bearing -= 2*pi
+
+            while bearing < 0:
+                bearing += 2*pi
+
+            noise = random.gauss(0, self.bearing_noise)
+
+            Z.append(bearing+noise)
 
         return Z #Leave this line here. Return vector Z of 4 bearings.
 
@@ -311,17 +329,15 @@ def particle_filter(motions, measurements, N=500): # I know it's tempting, but d
 ## filter is a randomized algorithm. We will be testing your code
 ## multiple times. Make sure check_output returns True at least 80%
 ## of the time.
-
-
  
 ## --------
 ## TEST CASES:
-## 
-##1) Calling the particle_filter function with the following
+
+## 1) Calling the particle_filter function with the following
 ##    motions and measurements should return a [x,y,orientation]
 ##    vector near [x=93.476 y=75.186 orient=5.2664], that is, the
 ##    robot's true location.
-##
+
 motions = [[2. * pi / 10, 20.] for row in range(8)]
 measurements = [[4.746936, 3.859782, 3.045217, 2.045506],
                 [3.510067, 2.916300, 2.146394, 1.598332],
@@ -333,73 +349,73 @@ measurements = [[4.746936, 3.859782, 3.045217, 2.045506],
                 [5.717342, 4.736780, 3.909599, 2.342536]]
 
 print(particle_filter(motions, measurements))
-##
 
-##motions = [[2. * pi / 10, 20.] for row in range(2)]
-##measurements = [[4.746936, 3.859782, 3.045217, 2.045506],
-##                [3.510067, 2.916300, 2.146394, 1.598332]]
-##
-##print(particle_filter(motions, measurements))
-##
+print()
+
+motions = [[2. * pi / 10, 20.] for row in range(2)]
+measurements = [[4.746936, 3.859782, 3.045217, 2.045506],
+               [3.510067, 2.916300, 2.146394, 1.598332]]
+
+print(particle_filter(motions, measurements))
+
+print()
+
 ## 2) You can generate your own test cases by generating
 ##    measurements using the generate_ground_truth function.
 ##    It will print the robot's last location when calling it.
-##
-##
-##number_of_iterations = 6
-##motions = [[2. * pi / 20, 12.] for row in range(number_of_iterations)]
-#motions = [[0.0, 0.0] for row in range(number_of_iterations)]
 
-##x = generate_ground_truth(motions)
-##final_robot = x[0]
-##measurements = x[1]
-##estimated_position = particle_filter(motions, measurements)
-##print_measurements(measurements)
-##print('Ground truth:    ', final_robot)
-##print('Particle filter: ', estimated_position)
-##print('Code check:      ', check_output(final_robot, estimated_position))
-##
-##
+number_of_iterations = 6
+motions = [[2. * pi / 20, 12.] for row in range(number_of_iterations)]
+motions = [[0.0, 0.0] for row in range(number_of_iterations)]
+
+x = generate_ground_truth(motions)
+final_robot = x[0]
+measurements = x[1]
+estimated_position = particle_filter(motions, measurements)
+print_measurements(measurements)
+print('Ground truth:    ', final_robot)
+print('Particle filter: ', estimated_position)
+print('Code check:      ', check_output(final_robot, estimated_position))
+
+
 
 
 #### MOTION TESTS
 
 ## --------
 ## TEST CASE:
-## 
+
 ## 1) The following code should print:
 ##       Robot:     [x=0.0 y=0.0 orient=0.0]
 ##       Robot:     [x=10.0 y=0.0 orient=0.0]
 ##       Robot:     [x=19.861 y=1.4333 orient=0.2886]
 ##       Robot:     [x=39.034 y=7.1270 orient=0.2886]
-##
-##
-##length = 20.
-##bearing_noise  = 0.0
-##steering_noise = 0.1
-##distance_noise = 5.0
-##
-##myrobot = robot(length)
-##myrobot.set(0.0, 0.0, 0.0)
-##myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
-##
-##motions = [[0.0, 10.0], [pi / 6.0, 10], [0.0, 20.0]]
-##
-##T = len(motions)
-##
-##print('Robot:    ', myrobot)
-##for t in range(T):
-##    myrobot = myrobot.move(motions[t])
-##    print('Robot:    ', myrobot)
-##
-##
+
+# length = 20.
+# bearing_noise  = 0.0
+# steering_noise = 0.1
+# distance_noise = 5.0
+
+# myrobot = robot(length)
+# myrobot.set(0.0, 0.0, 0.0)
+# myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
+
+# motions = [[0.0, 10.0], [pi / 6.0, 10], [0.0, 20.0]]
+
+# T = len(motions)
+
+# print('Robot:    ', myrobot)
+# for t in range(T):
+#    myrobot = myrobot.move(motions[t])
+#    print('Robot:    ', myrobot)
+
+# print()
 
 ## IMPORTANT: You may uncomment the test cases below to test your code.
 ## But when you submit this code, your test cases MUST be commented
 ## out. Our testing program provides its own code for testing your
 ## move function with randomized motion data.
 
-    
 ## 2) The following code should print:
 ##      Robot:     [x=0.0 y=0.0 orient=0.0]
 ##      Robot:     [x=9.9828 y=0.5063 orient=0.1013]
@@ -412,26 +428,27 @@ print(particle_filter(motions, measurements))
 ##      Robot:     [x=71.517 y=30.695 orient=0.8108]
 ##      Robot:     [x=78.027 y=38.280 orient=0.9121]
 ##      Robot:     [x=83.736 y=46.485 orient=1.0135]
-##
-##
-##length = 20.
-##bearing_noise  = 0.0
-##steering_noise = 0.0
-##distance_noise = 0.0
-##
-##myrobot = robot(length)
-##myrobot.set(0.0, 0.0, 0.0)
-##myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
-##
-##motions = [[0.2, 10.] for row in range(10)]
-##
-##T = len(motions)
-##
-##print('Robot:    ', myrobot)
-##for t in range(T):
-##    myrobot = myrobot.move(motions[t])
-##    print('Robot:    ', myrobot)
-##
+
+# length = 20.
+# bearing_noise  = 0.0
+# steering_noise = 0.0
+# distance_noise = 0.0
+
+# myrobot = robot(length)
+# myrobot.set(0.0, 0.0, 0.0)
+# myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
+
+# motions = [[0.2, 10.] for row in range(10)]
+
+# T = len(motions)
+
+# print('Robot:    ', myrobot)
+# for t in range(T):
+#    myrobot = myrobot.move(motions[t])
+#    print('Robot:    ', myrobot)
+
+# print()
+
 ## IMPORTANT: You may uncomment the test cases below to test your code.
 ## But when you submit this code, your test cases MUST be commented
 ## out. Our testing program provides its own code for testing your
@@ -442,51 +459,43 @@ print(particle_filter(motions, measurements))
 ## --------
 ## TEST CASES:
 
-
-
-##
 ## 1) The following code should print the list [6.004885648174475, 3.7295952571373605, 1.9295669970654687, 0.8519663271732721]
-##
-##
-#length = 20.
-##bearing_noise  = 0.0
-##steering_noise = 0.0
-##distance_noise = 0.0
-##
-##myrobot = robot(length)
-##myrobot.set(30.0, 20.0, 0.0)
-##myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
-##
-##print('Robot:        ', myrobot)
-##print('Measurements: ', myrobot.sense())
-##
+
+
+# length = 20.
+# bearing_noise  = 0.0
+# steering_noise = 0.0
+# distance_noise = 0.0
+
+# myrobot = robot(length)
+# myrobot.set(30.0, 20.0, 0.0)
+# myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
+
+# print('Robot:        ', myrobot)
+# print('Measurements: ', myrobot.sense())
+
+# print()
 
 ## IMPORTANT: You may uncomment the test cases below to test your code.
 ## But when you submit this code, your test cases MUST be commented
 ## out. Our testing program provides its own code for testing your
 ## sense function with randomized initial robot coordinates.
     
-
-##
 ## 2) The following code should print the list [5.376567117456516, 3.101276726419402, 1.3012484663475101, 0.22364779645531352]
-##
-##
-## length = 20.
-## bearing_noise  = 0.1
-## steering_noise = 0.0
-## distance_noise = 0.0
 
-## myrobot = robot(length)
-## myrobot.set(30.0, 20.0, pi / 5.0)
-## myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
+# length = 20.
+# bearing_noise  = 0.1
+# steering_noise = 0.0
+# distance_noise = 0.0
 
-## print('Robot:        ', myrobot)
-## print('Measurements: ', myrobot.sense())
-##
+# myrobot = robot(length)
+# myrobot.set(30.0, 20.0, pi / 5.0)
+# myrobot.set_noise(bearing_noise, steering_noise, distance_noise)
 
+# print('Robot:        ', myrobot)
+# print('Measurements: ', myrobot.sense())
 
 ## IMPORTANT: You may uncomment the test cases below to test your code.
 ## But when you submit this code, your test cases MUST be commented
 ## out. Our testing program provides its own code for testing your
 ## sense function with randomized initial robot coordinates.
-    
