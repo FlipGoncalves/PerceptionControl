@@ -98,26 +98,20 @@ class robot:
 
         # ENTER CODE HERE
         # HINT: You will probably need to use the function atan2()
-
-        lat1 = radians(self.x)
-
         for landmark in landmarks:
-            lat2 = radians(landmark[1])
+            vector = [landmark[1] - self.x, landmark[0] - self.y]
 
-            diffLong = radians(landmark[0] - self.y)
+            angle = atan2(vector[1], vector[0])
+            
+            bearing = angle - self.orientation
 
-            x = sin(diffLong) * cos(lat2)
-            y = cos(lat1) * sin(lat2) - (sin(lat1)
-                    * cos(lat2) * cos(diffLong))
+            while bearing > 2*pi:
+                bearing -= 2*pi
 
-            initial_bearing = atan2(x, y)
+            while bearing < 0:
+                bearing += 2*pi
 
-            # Now we have the initial bearing but math.atan2 return values
-            # from -180° to + 180° which is not what we want for a compass bearing
-            # The solution is to normalize the initial bearing as shown below
-            compass_bearing = (initial_bearing + self.orientation + 2*pi) % (2*pi)
-    
-            Z.append(compass_bearing)
+            Z.append(bearing)
 
         return Z #Leave this line here. Return vector Z of 4 bearings.
     
